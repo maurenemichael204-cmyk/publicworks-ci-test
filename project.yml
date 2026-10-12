@@ -8,6 +8,8 @@ settings:
   base:
     GENERATE_INFOPLIST_FILE: YES
     SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0"           # → CFBundleShortVersionString
+    CURRENT_PROJECT_VERSION: "1"       # → CFBundleVersion（模拟器安装必需）
 targets:
   PublicWorks:
     type: application
