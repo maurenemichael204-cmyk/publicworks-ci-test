@@ -18,6 +18,8 @@ targets:
       base:
         CODE_SIGNING_ALLOWED: "NO"
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleVersion: "1"                 # 模拟器安装强校验：缺失会导致安装失败(POSIX 22)
+        INFOPLIST_KEY_CFBundleShortVersionString: "1.0"
         TARGETED_DEVICE_FAMILY: "1"
   PublicWorksUITests:
     type: bundle.ui-testing
