@@ -26,11 +26,15 @@ final class PublicWorksUITests: XCTestCase {
     // MARK: - 工具
 
     private func dismissKeyboardIfNeeded() {
-        if app.keyboards.count > 0 {
-            app.press(.key(.RETURN))
-            if app.keyboards.count > 0 {
-                app.swipeDown(orientation: .down)
-            }
+        guard app.keyboards.exists else { return }
+        // 优先点键盘的确认/返回键；找不到就整页下滑收起键盘。
+        // （早前写的 app.press(.key(.RETURN)) 和 swipeDown(orientation:) 都不是本 SDK 的 API，编译失败）
+        for label in ["return", "Return", "done", "Done", "go", "Go"] {
+            let key = app.keyboards.buttons[label]
+            if key.exists { key.tap(); break }
+        }
+        if app.keyboards.exists {
+            app.swipeDown()
         }
     }
 
@@ -79,7 +83,7 @@ final class PublicWorksUITests: XCTestCase {
         dismissKeyboardIfNeeded()
 
         let baseURLField = app.textFields["baseURLField"]
-        let tokenField = app.secureFields["tokenField"]
+        let tokenField = app.secureTextFields["tokenField"]
         let uidField = app.textFields["uidField"]
 
         // 1. http:// 开头的 Base URL 应被拒绝
