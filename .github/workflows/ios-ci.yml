@@ -46,6 +46,23 @@ jobs:
           xcrun simctl boot "iPhone 15" || true
           xcrun simctl keychain booted add-root-cert "$PWD/mock/cert.pem"
 
+      - name: 预编译并自检 Info.plist
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project PublicWorks.xcodeproj \
+            -scheme PublicWorks \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            -quiet 2>&1 | tee build.log
+          DIR=$(xcodebuild -showBuildSettings \
+            -project PublicWorks.xcodeproj -scheme PublicWorks \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            | awk -F' = ' '/TARGET_BUILD_DIR/ {print $2}')
+          echo "── Info.plist of $DIR/PublicWorks.app ──"
+          plutil -p "$DIR/PublicWorks.app/Info.plist"
+          plutil -p "$DIR/PublicWorks.app/Info.plist" | grep -q CFBundleVersion \
+            || { echo "FATAL: generated Info.plist missing CFBundleVersion"; exit 1; }
+
       - name: 运行 UI 回归测试
         run: |
           set -o pipefail   # 没有这行，tee 会把 xcodebuild 的失败码吞成成功
