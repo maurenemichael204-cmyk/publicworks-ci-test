@@ -33,7 +33,13 @@ jobs:
         run: brew install xcodegen
 
       - name: 生成 Xcode 工程
-        run: xcodegen generate
+        run: |
+          xcodegen generate
+          # brew 新版 XcodeGen 固定写 objectVersion=77（Xcode16 格式），
+          # runner 的 Xcode 15.4 读不了：降为 56 并删掉 16 专属属性行。
+          sed -i '' 's/objectVersion = 77/objectVersion = 56/' PublicWorks.xcodeproj/project.pbxproj
+          sed -i '' '/minimizedProjectReferenceProxies/d; /preferredProjectObjectVersion/d' PublicWorks.xcodeproj/project.pbxproj
+          grep -m1 objectVersion PublicWorks.xcodeproj/project.pbxproj
 
       - name: 启动模拟器并信任证书
         run: |
