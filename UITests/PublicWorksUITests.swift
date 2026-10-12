@@ -90,9 +90,14 @@ final class PublicWorksUITests: XCTestCase {
         let logToggle = app.switches["启用日志"]
         XCTAssertTrue(logToggle.waitForExistence(timeout: 15), "找不到日志开关")
         ensureVisible(logToggle)
-        print("UI-DEBUG toggle value before = \(logToggle.value ?? "nil")")
-        if logToggle.value as? String == "0" { logToggle.tap() }
-        print("UI-DEBUG toggle value after  = \(logToggle.value ?? "nil")")
+        // 注意：SwiftUI 开关的 value 可能是 NSNumber 而非 String，
+        // `as? String` 会得到 nil —— 前几轮就是栽在这，tap 从未执行。
+        let before = "\(logToggle.value ?? "nil")"
+        print("UI-DEBUG toggle value before = \(before)")
+        if before != "1" { logToggle.tap() }
+        let after = "\(logToggle.value ?? "nil")"
+        print("UI-DEBUG toggle value after  = \(after)")
+        XCTAssertEqual(after, "1", "「启用日志」开关必须处于打开状态，日志区才会渲染")
         dismissKeyboardIfNeeded()
 
         let baseURLField = app.textFields["baseURLField"]
