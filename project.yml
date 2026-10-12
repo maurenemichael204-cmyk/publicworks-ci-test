@@ -1,0 +1,41 @@
+name: PublicWorks
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    GENERATE_INFOPLIST_FILE: YES
+    SWIFT_VERSION: "5.9"
+targets:
+  PublicWorks:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    settings:
+      base:
+        CODE_SIGNING_ALLOWED: "NO"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        TARGETED_DEVICE_FAMILY: "1"
+  PublicWorksUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - UITests
+    dependencies:
+      - target: PublicWorks
+    settings:
+      base:
+        CODE_SIGNING_ALLOWED: "NO"
+schemes:
+  PublicWorks:
+    build:
+      targets:
+        PublicWorks: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - PublicWorksUITests
