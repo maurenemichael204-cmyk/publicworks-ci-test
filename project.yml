@@ -1,6 +1,7 @@
 name: PublicWorks
 options:
   bundleIdPrefix: com.example
+  preferredProjectObjectVersion: 54   # Xcode 13-15 可读取的工程格式（runner 为 Xcode 15.4）
   deploymentTarget:
     iOS: "15.0"
 settings:
