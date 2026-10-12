@@ -55,8 +55,21 @@ final class PublicWorksUITests: XCTestCase {
                             context: String = "") {
         let predicate = NSPredicate(format: "label CONTAINS %@", substring)
         let element = app.staticTexts.matching(predicate).firstMatch
-        XCTAssertTrue(element.waitForExistence(timeout: timeout),
-                      "界面应出现「\(substring)」（\(context)）")
+        if element.waitForExistence(timeout: 3) { return }
+        // List 懒渲染：行滚出屏幕就不在层级里。先滚回顶部（日志区上部），
+        // 再滚到底，双向找一次。
+        app.swipeDown(); app.swipeDown()
+        if element.waitForExistence(timeout: 3) { return }
+        app.swipeUp(); app.swipeUp(); app.swipeUp()
+        if element.waitForExistence(timeout: 3) { return }
+        app.swipeDown(); app.swipeDown()
+        let ok = element.waitForExistence(timeout: timeout)
+        if !ok {
+            // 关键诊断：把当时可见的全部 staticText 打进测试输出
+            let labels = app.staticTexts.allElementsBoundByIndex.map { $0.label }
+            print("UI-DEBUG[\(context)] visible staticTexts = \(labels)")
+        }
+        XCTAssertTrue(ok, "界面应出现「\(substring)」（\(context)）")
     }
 
     private func ensureVisible(_ element: XCUIElement) {
