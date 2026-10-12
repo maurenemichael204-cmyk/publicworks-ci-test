@@ -54,13 +54,14 @@ jobs:
             -scheme PublicWorks \
             -destination "platform=iOS Simulator,name=iPhone 15" \
             -quiet 2>&1 | tee build.log
-          DIR=$(xcodebuild -showBuildSettings \
-            -project PublicWorks.xcodeproj -scheme PublicWorks \
-            -destination "platform=iOS Simulator,name=iPhone 15" \
-            | awk -F' = ' '/TARGET_BUILD_DIR/ {print $2}')
-          echo "── Info.plist of $DIR/PublicWorks.app ──"
-          plutil -p "$DIR/PublicWorks.app/Info.plist"
-          plutil -p "$DIR/PublicWorks.app/Info.plist" | grep -q CFBundleVersion \
+          # -showBuildSettings 不认 destination（上一轮它返回了 Debug-iphoneos，
+          # 真机目录必然不存在导致误报）。改为直接定位模拟器产物。
+          PLIST=$(find "$HOME/Library/Developer/Xcode/DerivedData" \
+            -path "*Debug-iphonesimulator/PublicWorks.app/Info.plist" | head -1)
+          echo "── $PLIST ──"
+          plutil -p "$PLIST" > plist.txt   # 先落盘再 grep，避开 pipefail+grep-q 的 SIGPIPE 误判
+          cat plist.txt
+          grep -q CFBundleVersion plist.txt \
             || { echo "FATAL: generated Info.plist missing CFBundleVersion"; exit 1; }
 
       - name: 运行 UI 回归测试
