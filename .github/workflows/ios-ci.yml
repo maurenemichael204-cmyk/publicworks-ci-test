@@ -42,6 +42,7 @@ jobs:
 
       - name: 运行 UI 回归测试
         run: |
+          set -o pipefail   # 没有这行，tee 会把 xcodebuild 的失败码吞成成功
           xcodebuild test \
             -project PublicWorks.xcodeproj \
             -scheme PublicWorks \
