@@ -55,21 +55,19 @@ final class PublicWorksUITests: XCTestCase {
                             context: String = "") {
         let predicate = NSPredicate(format: "label CONTAINS %@", substring)
         let element = app.staticTexts.matching(predicate).firstMatch
-        if element.waitForExistence(timeout: 3) { return }
-        // List 懒渲染：行滚出屏幕就不在层级里。先滚回顶部（日志区上部），
-        // 再滚到底，双向找一次。
-        app.swipeDown(); app.swipeDown()
-        if element.waitForExistence(timeout: 3) { return }
-        app.swipeUp(); app.swipeUp(); app.swipeUp()
-        if element.waitForExistence(timeout: 3) { return }
-        app.swipeDown(); app.swipeDown()
-        let ok = element.waitForExistence(timeout: timeout)
-        if !ok {
-            // 关键诊断：把当时可见的全部 staticText 打进测试输出
+        app.swipeDown(); app.swipeDown()          // 回到页面顶部
+        if element.waitForExistence(timeout: 4) { return }
+        // 逐级下滑并等待懒渲染；若找到则返回，找不到则每级留档可见文本
+        for depth in 0..<6 {
+            app.swipeUp()
+            if element.waitForExistence(timeout: 2) {
+                print("UI-DEBUG[\(context)] found at scroll depth \(depth)")
+                return
+            }
             let labels = app.staticTexts.allElementsBoundByIndex.map { $0.label }
-            print("UI-DEBUG[\(context)] visible staticTexts = \(labels)")
+            print("UI-DEBUG[\(context)] depth=\(depth) labels=\(labels)")
         }
-        XCTAssertTrue(ok, "界面应出现「\(substring)」（\(context)）")
+        XCTAssertTrue(false, "界面应出现「\(substring)」（\(context)）")
     }
 
     private func ensureVisible(_ element: XCUIElement) {
@@ -92,7 +90,9 @@ final class PublicWorksUITests: XCTestCase {
         let logToggle = app.switches["启用日志"]
         XCTAssertTrue(logToggle.waitForExistence(timeout: 15), "找不到日志开关")
         ensureVisible(logToggle)
+        print("UI-DEBUG toggle value before = \(logToggle.value ?? "nil")")
         if logToggle.value as? String == "0" { logToggle.tap() }
+        print("UI-DEBUG toggle value after  = \(logToggle.value ?? "nil")")
         dismissKeyboardIfNeeded()
 
         let baseURLField = app.textFields["baseURLField"]
