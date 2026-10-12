@@ -1,0 +1,11 @@
+DerivedData/
+build/
+*.xcresult/
+TestResults.xcresult/
+xcodebuild.log
+mock/cert.pem
+mock/key.pem
+mock/mock.log
+.DS_Store
+xcuserdata/
+*.xcodeproj/
