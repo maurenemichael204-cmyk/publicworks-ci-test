@@ -18,7 +18,9 @@ targets:
       - Sources
     settings:
       base:
-        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGNING_ALLOWED: "YES"
+        CODE_SIGN_IDENTITY: "-"        # ad-hoc 签名：securityd 需有效签名才授予 Keychain 访问组(-34018)
+        CODE_SIGNING_REQUIRED: "NO"
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_CFBundleVersion: "1"                 # 模拟器安装强校验：缺失会导致安装失败(POSIX 22)
         INFOPLIST_KEY_CFBundleShortVersionString: "1.0"

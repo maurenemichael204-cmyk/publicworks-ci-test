@@ -57,6 +57,9 @@ final class AppViewModel: ObservableObject {
             configureClient()
             configurationError = nil
             log("配置已保存")
+        } catch let error as NSError where error.domain == NSOSStatusErrorDomain {
+            // CI 排障用：把 Keychain 的 OSStatus 原样打到界面日志上
+            configurationError = "无法安全保存 Token。(OSStatus \(error.code))"
         } catch {
             configurationError = "无法安全保存 Token。"
         }
